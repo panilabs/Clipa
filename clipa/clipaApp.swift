@@ -10,11 +10,22 @@ import SwiftUI
 @main
 struct clipaApp: App {
     let persistenceController = PersistenceController.shared
+    @StateObject private var menuBarManager = MenuBarManager()
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+        Settings {
+            EmptyView()
+        }
+        .commands {
+            // Hide the default menu items since this is a menu bar app
+            CommandGroup(replacing: .appInfo) { }
+            CommandGroup(replacing: .systemServices) { }
+            CommandGroup(replacing: .newItem) { }
+            CommandGroup(replacing: .pasteboard) { }
+            CommandGroup(replacing: .undoRedo) { }
+            CommandGroup(replacing: .textEditing) { }
+            CommandGroup(replacing: .textFormatting) { }
+            CommandGroup(replacing: .help) { }
         }
     }
 }

@@ -14,15 +14,30 @@ struct PersistenceController {
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+        
+        // Create sample clipboard entries
+        let sampleTexts = [
+            "Hello, this is a sample clipboard entry!",
+            "https://www.example.com",
+            "Sample code: let greeting = \"Hello, World!\"",
+            "Meeting reminder: Team standup at 9 AM",
+            "Shopping list: Milk, Bread, Eggs",
+            "Important note: Don't forget to backup data",
+            "Phone number: +1 (555) 123-4567",
+            "Email: user@example.com"
+        ]
+        
+        for (index, text) in sampleTexts.enumerated() {
+            let newEntry = ClipboardEntry(context: viewContext)
+            newEntry.id = UUID()
+            newEntry.content = text
+            newEntry.timestamp = Date().addingTimeInterval(-Double(index * 3600)) // Stagger timestamps
+            newEntry.isPinned = index < 2 // Pin first two entries
         }
+        
         do {
             try viewContext.save()
         } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
@@ -38,9 +53,6 @@ struct PersistenceController {
         }
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
                 /*
                  Typical reasons for an error here include:
                  * The parent directory does not exist, cannot be created, or disallows writing.
